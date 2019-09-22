@@ -1,0 +1,9 @@
+{
+  "name": "openstreetmap-date-query",
+  "version": "0.0.0",
+  "description": "Builds a regexp from a date query, e.g. for usage with Overpass API.",
+  "main": "src/query.js",
+  "repository": "https://github.com/plepe/openstreetmap-date-query",
+  "author": "Stephan Bösch-Plepelits <skunk@xover.mud.at>",
+  "license": "GPL-3.0"
+}
