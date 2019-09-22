@@ -26,6 +26,40 @@ function parts (date, options={}) {
       return [ '^' + date + '(-\\d{2}(-\\d{2})?)?$' ]
     }
   }
+  else if (options.op === '<=') {
+    let opt = JSON.parse(JSON.stringify(options))
+    opt.op = '<'
+    possibilities = possibilities.concat(parts(date, opt))
+
+    if (date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      possibilities.push(date)
+    }
+    if (date.match(/^\d{4}-\d{2}$/)) {
+      possibilities.push(date + '(-\\d{2})?')
+    }
+    if (date.match(/^\d{4}$/)) {
+      possibilities.push(date + '(-\\d{2}(-\\d{2})?)?')
+      if (date[0] === '0') {
+        possibilities.push(date.substr(1, 3) + '(-\\d{2}(-\\d{2})?)?')
+      }
+    }
+    if (date.match(/^\d{3}0s$/)) {
+      possibilities.push(date.substr(0, 3) + '(0s|\\d(-\\d{2}(-\\d{2})?)?)')
+      if (date[0] === '0') {
+        possibilities.push(date.substr(1, 2) + '(0s|\\d(-\\d{2}(-\\d{2})?)?)')
+      }
+    }
+    if (date.match(/^C\d+$/)) {
+      let year = ('' + ((date.substr(1) - 1) * 100)).padStart(4, '0')
+
+      possibilities.push(year.substr(0, 2) + '\\d(0s|\\d(-\\d{2}(-\\d{2})?)?)')
+
+      possibilities.push(date)
+      if (date.length === 2 && date[0] === '0') {
+        possibilities.push('C' + date[1])
+      }
+    }
+  }
   else if (options.op === '<') {
     if (date.match(/^\d{4}-\d{2}-\d{2}$/)) {
       possibilities = possibilities.concat(parts(date.substr(0, 7), options))
@@ -33,13 +67,12 @@ function parts (date, options={}) {
       if (date.substr(8, 2) !== '01') {
         possibilities.push(date.substr(0, 8) + regexpRangeDouble(1, date.substr(8, 2) - 1))
       }
-
     }
     if (date.match(/^\d{4}-\d{2}$/)) {
       possibilities = possibilities.concat(parts(date.substr(0, 4), options))
 
       if (date.substr(5, 2) !== '01') {
-        possibilities.push(date.substr(0, 5) + regexpRangeDouble(1, date.substr(5, 2)) + '(-\\d{2})?')
+        possibilities.push(date.substr(0, 5) + regexpRangeDouble(1, date.substr(5, 2) - 1) + '(-\\d{2})?')
       }
 
     }
@@ -56,6 +89,9 @@ function parts (date, options={}) {
 
       if (date[2] > 0) {
         possibilities.push(date.substr(0, 2) + regexpRange(0, date[2] - 1) + '(0s|\\d(-\\d{2}(-\\d{2})?)?)')
+      }
+      if (date[0] === '0') {
+        possibilities.push(date.substr(1, 1) + regexpRange(0, date[2] - 1) + '(0s|\\d(-\\d{2}(-\\d{2})?)?)')
       }
     }
     else if (date.match(/^C\d{1,2}$/)) {
