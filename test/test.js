@@ -47,12 +47,104 @@ function testAll (regexp) {
 }
 
 describe('=, strict=true', function () {
+  it('all dates in C21', function () {
+    let regexp = osmDateQuery('C21', { op: '=', strict: true })
+    let matches = testAll(regexp)
+
+    assert.deepEqual(
+      [ '2019', '2019-07', '2019-08', '2019-09', '2019-09-21', '2019-09-22', '2019-01-01', '2019-12-24', '2018-12-24', '2020-12-24', '2008-12-24', '2008-08', 'C21', '2010s', '2000s', '2020s' ],
+      matches
+    )
+  })
+
+  it('all dates in the 2010s', function () {
+    let regexp = osmDateQuery('2010s', { op: '=', strict: true })
+    let matches = testAll(regexp)
+
+    assert.deepEqual(
+      [ '2019', '2019-07', '2019-08', '2019-09', '2019-09-21', '2019-09-22', '2019-01-01', '2019-12-24', '2018-12-24', '2010s' ],
+      matches
+    )
+  })
+
   it('all dates in the year 2019', function () {
     let regexp = osmDateQuery('2019', { op: '=', strict: true })
     let matches = testAll(regexp)
 
     assert.deepEqual(
       [ '2019', '2019-07', '2019-08', '2019-09', '2019-09-21', '2019-09-22', '2019-01-01', '2019-12-24' ],
+      matches
+    )
+  })
+
+  it('all dates in month 2019-09', function () {
+    let regexp = osmDateQuery('2019-09', { op: '=', strict: true })
+    let matches = testAll(regexp)
+
+    assert.deepEqual(
+      [ '2019-09', '2019-09-21', '2019-09-22' ],
+      matches
+    )
+  })
+
+  it('all dates at date 2019-09-21', function () {
+    let regexp = osmDateQuery('2019-09-21', { op: '=', strict: true })
+    let matches = testAll(regexp)
+
+    assert.deepEqual(
+      [ '2019-09-21' ],
+      matches
+    )
+  })
+})
+
+describe('=, strict=false', function () {
+  it('all dates in C21', function () {
+    let regexp = osmDateQuery('C21', { op: '=', strict: false })
+    let matches = testAll(regexp)
+
+    assert.deepEqual(
+      [ '2019', '2019-07', '2019-08', '2019-09', '2019-09-21', '2019-09-22', '2019-01-01', '2019-12-24', '2018-12-24', '2020-12-24', '2008-12-24', '2008-08', 'C21', '2010s', '2000s', '2020s' ],
+      matches
+    )
+  })
+
+  it('all dates in the 2010s', function () {
+    let regexp = osmDateQuery('2010s', { op: '=', strict: false })
+    let matches = testAll(regexp)
+
+    assert.deepEqual(
+      [ '2019', '2019-07', '2019-08', '2019-09', '2019-09-21', '2019-09-22', '2019-01-01', '2019-12-24', '2018-12-24', 'C21', '2010s' ],
+      matches
+    )
+  })
+
+  it('all dates in the year 2019', function () {
+    let regexp = osmDateQuery('2019', { op: '=', strict: false })
+    let matches = testAll(regexp)
+
+    assert.deepEqual(
+      [ '2019', '2019-07', '2019-08', '2019-09', '2019-09-21', '2019-09-22', '2019-01-01', '2019-12-24', 'C21', '2010s' ],
+      matches
+    )
+  })
+
+  it('all dates in month 2019-09', function () {
+    let regexp = osmDateQuery('2019-09', { op: '=', strict: false })
+    let matches = testAll(regexp)
+
+    assert.deepEqual(
+      [ '2019', '2019-09', '2019-09-21', '2019-09-22', 'C21', '2010s' ],
+      matches
+    )
+  })
+
+  it('all dates at date 2019-09-21', function () {
+    let regexp = osmDateQuery('2019-09-21', { op: '=', strict: false })
+    let matches = testAll(regexp)
+
+    assert.deepEqual(
+      [ '2019', '2019-09', '2019-09-21', 'C21', '2010s' ],
       matches
     )
   })
