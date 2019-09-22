@@ -67,6 +67,14 @@ function parts (date, options={}) {
       if (date.substr(8, 2) !== '01') {
         possibilities.push(date.substr(0, 8) + regexpRangeDouble(1, date.substr(8, 2) - 1))
       }
+
+      if (!options.strict) {
+        if (date[0] === '0') {
+          possibilities.push('0?' + date.substr(1, 6))
+        } else {
+          possibilities.push(date.substr(0, 7))
+        }
+      }
     }
     if (date.match(/^\d{4}-\d{2}$/)) {
       possibilities = possibilities.concat(parts(date.substr(0, 4), options))
@@ -75,6 +83,13 @@ function parts (date, options={}) {
         possibilities.push(date.substr(0, 5) + regexpRangeDouble(1, date.substr(5, 2) - 1) + '(-\\d{2})?')
       }
 
+      if (!options.strict) {
+        if (date[0] === '0') {
+          possibilities.push('0?' + date.substr(1, 3))
+        } else {
+          possibilities.push(date.substr(0, 4))
+        }
+      }
     }
     if (date.match(/^\d{4}$/)) {
       possibilities = possibilities.concat(parts(date.substr(0, 3) + '0s', options))
@@ -83,15 +98,31 @@ function parts (date, options={}) {
         possibilities.push(date.substr(0, 3) + regexpRange(0, date[3] - 1) + '(-\\d{2}(-\\d{2})?)?')
       }
 
+      if (!options.strict) {
+        if (date[0] === '0') {
+          possibilities.push('0?' + date.substr(1, 2) + '0s')
+        } else {
+          possibilities.push(date.substr(0, 3) + '0s')
+        }
+      }
     }
     else if (date.match(/^\d{4}s$/)) {
-      possibilities = possibilities.concat(parts('C' + (parseInt(date.substr(0, 2)) + 1) , options))
+      let cent = parseInt(date.substr(0, 2)) + 1
+      possibilities = possibilities.concat(parts('C' + cent , options))
 
       if (date[2] > 0) {
         possibilities.push(date.substr(0, 2) + regexpRange(0, date[2] - 1) + '(0s|\\d(-\\d{2}(-\\d{2})?)?)')
       }
       if (date[0] === '0') {
         possibilities.push(date.substr(1, 1) + regexpRange(0, date[2] - 1) + '(0s|\\d(-\\d{2}(-\\d{2})?)?)')
+      }
+
+      if (!options.strict) {
+        if (cent[0] === '0') {
+          possibilities.push('C0?' + cent.substr(1))
+        } else {
+          possibilities.push('C' + cent)
+        }
       }
     }
     else if (date.match(/^C\d{1,2}$/)) {
@@ -135,12 +166,20 @@ function parts (date, options={}) {
 }
 
 function osmDateQuery (date, options={}) {
+  if (!('strict' in options)) {
+    options.strict = false
+  }
+
   let result = parts(date, options)
 
   if (!options.op || options.op === '=') {
     return '^(' + result.join('|') + ')$'
   } else if (options.op === '<' || options.op === '<=') {
-    return '^(|.*\\.\\.)(' + result.join('|') + ')$'
+    if (options.strict) {
+      return '^(|.*\\.\\.)(' + result.join('|') + ')$'
+    } else {
+      return '^(' + result.join('|') + ')(|\\.\\..*)$'
+    }
   }
 }
 
