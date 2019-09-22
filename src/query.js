@@ -136,7 +136,12 @@ function parts (date, options={}) {
 
 function osmDateQuery (date, options={}) {
   let result = parts(date, options)
-  return '^(' + result.join('|') + ')$'
+
+  if (!options.op || options.op === '=') {
+    return '^(' + result.join('|') + ')$'
+  } else if (options.op === '<' || options.op === '<=') {
+    return '^(|.*\\.\\.)(' + result.join('|') + ')$'
+  }
 }
 
 module.exports = osmDateQuery
