@@ -285,11 +285,24 @@ function osmDateQuery (date, options={}) {
     options.strict = false
   }
 
-  let result = parts(date, options)
 
   if (!options.op || options.op === '=') {
-    return '^(' + result.join('|') + ')$'
+    if (options.strict) {
+      let result = parts(date, options)
+      return '^((' + result.join('|') + ')|((' + result.join('|') + ')\\.\\.(' + result.join('|') + ')))$'
+    } else {
+      let result = parts(date, options)
+      let opt = JSON.parse(JSON.stringify(options))
+      opt.op = '<='
+      let resultA = parts(date, options)
+      opt.op = '=>'
+      let resultB = parts(date, options)
+
+      return '^((' + result.join('|') + ')|((' + resultA.join('|') + ')(|\\.\\..*))|((|.*\\.\\.)(' + resultB.join('|') + ')))$'
+    }
   } else if (options.op === '<' || options.op === '<=') {
+    let result = parts(date, options)
+
     if (options.strict) {
       return '^(|.*\\.\\.)(' + result.join('|') + ')$'
     } else {
