@@ -1,5 +1,9 @@
 let earlyMidLate = [ 'early', 'mid', 'late' ]
 
+function arrayUnique (arr) {
+  return Array.from(new Set(arr))
+}
+
 function regexpRange (from, to) {
   let result = ''
 
@@ -8,6 +12,16 @@ function regexpRange (from, to) {
   }
 
   return '[' + result + ']'
+}
+
+function range (from, to) {
+  let result = []
+
+  for (let i = from; i <= to; i++) {
+    result.push(i)
+  }
+
+  return result
 }
 
 function optPending0 (str) {
@@ -50,47 +64,75 @@ function parts (date, options={}) {
         // p - part of the year
         p = earlyMidLate[Math.floor((date.substr(5, 2) - 1) / 12 * 3)]
         possibilities.push('(|' + p + ' )' + optPending0(date.substr(0, 4)))
-        possibilities.push(optPending0(date.substr(0, 4)))
+
+        p = earlyMidLate[Math.floor((date.substr(5, 2) - 1) / 12 * 3)]
+        possibilities.push('(|' + p + ' )' + optPending0(date.substr(0, 4)))
+
         possibilities.push(optPending0(date.substr(0, 3) + '0s'))
 
+        p = earlyMidLate[Math.floor((date.substr(3, 1) / 10 + (date.substr(5, 2) - 1) / 120) * 3)]
+        possibilities.push('(|' + p + ' )' + optPending0(date.substr(0, 3)) + '0s')
+
         let cent = parseInt(date.substr(0, 2)) + 1
-        possibilities.push('C' + optPending0(('' + cent).padStart('0', 2)))
+        p = earlyMidLate[Math.floor((date.substr(2, 2) / 100 + (date.substr(5, 2) - 1) / 1200) * 3)]
+        possibilities.push('(|' + p + ' )C' + optPending0(('' + cent).padStart('0', 2)))
       }
     }
     if (date.match(/^\d{4}-\d{2}$/)) {
       possibilities.push('(|early |mid |late )' + optPending0(date + '(-[0-9]{2})?'))
 
       if (!options.strict) {
-        let p = earlyMidLate[Math.floor((date.substr(5, 2) - 1) / 12 * 3)]
+        let p
+
+        p = earlyMidLate[Math.floor((date.substr(5, 2) - 1) / 12 * 3)]
         possibilities.push('(|' + p + ' )' + optPending0(date.substr(0, 4)))
-        possibilities.push(optPending0(date.substr(0, 3)) + '0s')
+
+        p = earlyMidLate[Math.floor((date.substr(3, 1) / 10 + (date.substr(5, 2) - 1) / 120) * 3)]
+        possibilities.push('(|' + p + ' )' + optPending0(date.substr(0, 3)) + '0s')
 
         let cent = parseInt(date.substr(0, 2)) + 1
-        possibilities.push('C' + optPending0(('' + cent).padStart('0', 2)))
+        p = earlyMidLate[Math.floor((date.substr(2, 2) / 100 + (date.substr(5, 2) - 1) / 1200) * 3)]
+        possibilities.push('(|' + p + ' )C' + optPending0(('' + cent).padStart('0', 2)))
       }
     }
     if (date.match(/^\d{4}$/)) {
       possibilities.push('(|early |mid |late )' + optPending0(date + '(-[0-9]{2}(-[0-9]{2})?)?'))
 
       if (!options.strict) {
-        possibilities.push(optPending0(date.substr(0, 3)) + '0s')
+        let p
+
+        p = arrayUnique([
+          earlyMidLate[Math.floor((date.substr(3, 1)) / 10 * 3)],
+          earlyMidLate[Math.floor((date.substr(3, 1) + '.99') / 10 * 3)]
+        ])
+        possibilities.push('(|' + p.join(' |') + ' )' + optPending0(date.substr(0, 3)) + '0s')
+
+        p = arrayUnique([
+          earlyMidLate[Math.floor((date.substr(2, 2)) / 100 * 3)],
+          earlyMidLate[Math.floor((date.substr(2, 2) + '.99') / 100 * 3)]
+        ])
 
         let cent = parseInt(date.substr(0, 2)) + 1
-        possibilities.push('C' + optPending0(('' + cent).padStart('0', 2)))
+        possibilities.push('(|' + p.join(' |') + ' )C' + optPending0(('' + cent).padStart('0', 2)))
       }
     }
     else if (date.match(/^\d{4}s$/)) {
       possibilities.push('(|early |mid |late )' + optPending0(date.substr(0, 3)) + '(0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)')
 
       if (!options.strict) {
+        let p = arrayUnique([
+          earlyMidLate[Math.floor((date.substr(2, 1) + '0') / 100 * 3)],
+          earlyMidLate[Math.floor((date.substr(2, 1) + '9') / 100 * 3)]
+        ])
+
         let cent = parseInt(date.substr(0, 2)) + 1
-        possibilities.push('C' + optPending0(('' + cent).padStart('0', 2)))
+        possibilities.push('(|' + p.join(' |') + ' )C' + optPending0(('' + cent).padStart('0', 2)))
       }
     }
     else if (date.match(/^C\d+$/)) {
       let cent = date.substr(1).padStart('0', 2)
       let year = ('' + ((cent - 1) * 100)).padStart(4, '0')
-      possibilities.push('C' + optPending0(('' + cent).padStart('0', 2)))
+      possibilities.push('(|early |mid |late )C' + optPending0(('' + cent).padStart('0', 2)))
       possibilities.push('(|early |mid |late )' + optPending0(year.substr(0, 2)) + '[0-9](0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)')
     }
   }
@@ -103,26 +145,34 @@ function parts (date, options={}) {
       possibilities.push(optPending0(date))
     }
     if (date.match(/^\d{4}-\d{2}$/)) {
-      possibilities.push(optPending0(date) + '(-[0-9]{2})?')
+      possibilities.push('(|early |mid |late )' + optPending0(date) + '(-[0-9]{2})?')
     }
     if (date.match(/^\d{4}$/)) {
-      possibilities.push(optPending0(date) + '(-[0-9]{2}(-[0-9]{2})?)?')
+      possibilities.push('(|early |mid |late )' + optPending0(date) + '(-[0-9]{2}(-[0-9]{2})?)?')
     }
     if (date.match(/^\d{3}0s$/)) {
-      possibilities.push(optPending0(date.substr(0, 3)) + '(0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)')
+      possibilities.push('(|early |mid |late )' + optPending0(date.substr(0, 3)) + '(0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)')
     }
     if (date.match(/^C\d+$/)) {
       let cent = date.substr(1).padStart('0', 2)
       let year = ('' + ((date.substr(1) - 1) * 100)).padStart(4, '0')
 
-      possibilities.push(optPending0(year.substr(0, 2)) + '[0-9](0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)')
-
-      possibilities.push('C' + optPending0(cent))
+      possibilities.push('(|early |mid |late )' + optPending0(year.substr(0, 2)) + '[0-9](0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)')
+      possibilities.push('(|early |mid |late )C' + optPending0(cent))
     }
   }
   else if (options.op === '<') {
     if (date.match(/^\d{4}-\d{2}-\d{2}$/)) {
       possibilities = possibilities.concat(parts(date.substr(0, 7), options))
+
+      let p = range(0, Math.floor((date.substr(8, 2) - 1) / 31 * 3) - 1)
+        .map(i => earlyMidLate[i])
+      if (!options.strict && date.substr(8, 2) !== '01') {
+        p.push(earlyMidLate[Math.floor((date.substr(8, 2) - 2) / 31 * 3)])
+      }
+      if (p.length) {
+        possibilities.push('(' + arrayUnique(p).join(' |') + ' )' + date.substr(0, 7))
+      }
 
       if (date.substr(8, 2) !== '01') {
         possibilities.push(optPending0(date.substr(0, 8) + regexpRangeDouble(1, date.substr(8, 2) - 1)))
@@ -135,6 +185,15 @@ function parts (date, options={}) {
     if (date.match(/^\d{4}-\d{2}$/)) {
       possibilities = possibilities.concat(parts(date.substr(0, 4), options))
 
+      let p = range(0, Math.floor((date.substr(5, 2) - 1) / 12 * 3) - 1)
+        .map(i => earlyMidLate[i])
+      if (!options.strict && date.substr(5, 2) !== '01') {
+        p.push(earlyMidLate[Math.floor((date.substr(5, 2) - 2) / 12 * 3)])
+      }
+      if (p.length) {
+        possibilities.push('(' + arrayUnique(p).join(' |') + ' )' + date.substr(0, 4))
+      }
+
       if (date.substr(5, 2) !== '01') {
         possibilities.push(optPending0(date.substr(0, 5)) + regexpRangeDouble(1, date.substr(5, 2) - 1) + '(-[0-9]{2})?')
       }
@@ -146,27 +205,45 @@ function parts (date, options={}) {
     if (date.match(/^\d{4}$/)) {
       possibilities = possibilities.concat(parts(date.substr(0, 3) + '0s', options))
 
+      let p = range(0, Math.floor((date.substr(3, 1)) / 10 * 3) - 1)
+        .map(i => earlyMidLate[i])
+      if (!options.strict && date.substr(3, 1) !== '0') {
+        p.push(earlyMidLate[Math.floor((date.substr(3, 1) - 1) / 10 * 3)])
+      }
+      if (p.length) {
+        possibilities.push('(' + arrayUnique(p).join(' |') + ' )' + date.substr(0, 3) + '0s')
+      }
+
       if (date[3] !== '0') {
-        possibilities.push(optPending0(date.substr(0, 3)) + regexpRange(0, date[3] - 1) + '(-[0-9]{2}(-[0-9]{2})?)?')
+        possibilities.push('(|early |mid |late )' + optPending0(date.substr(0, 3)) + regexpRange(0, date[3] - 1) + '(-[0-9]{2}(-[0-9]{2})?)?')
       }
 
       if (!options.strict) {
-        possibilities.push(optPending0(date.substr(0, 3)) + '0s')
+        possibilities.push('(|early |mid |late )' + optPending0(date.substr(0, 3)) + '0s')
       }
     }
     else if (date.match(/^\d{4}s$/)) {
       let cent = parseInt(date.substr(0, 2)) + 1
       possibilities = possibilities.concat(parts('C' + cent , options))
 
+      let p = range(0, Math.floor((date.substr(2, 1) + '0') / 100 * 3) - 1)
+        .map(i => earlyMidLate[i])
+      if (!options.strict && date.substr(2, 1) !== '0') {
+        p.push(earlyMidLate[Math.floor((date.substr(2, 1) + '0') / 100 * 3)])
+      }
+      if (p.length) {
+        possibilities.push('(' + arrayUnique(p).join(' |') + ' )C' + cent)
+      }
+
       if (date[2] > 0) {
-        possibilities.push(date.substr(0, 2) + regexpRange(0, date[2] - 1) + '(0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)')
+        possibilities.push('(|early |mid |late )' + date.substr(0, 2) + regexpRange(0, date[2] - 1) + '(0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)')
       }
       if (date[0] === '0') {
-        possibilities.push(date.substr(1, 1) + regexpRange(0, date[2] - 1) + '(0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)')
+        possibilities.push('(|early |mid |late )' + date.substr(1, 1) + regexpRange(0, date[2] - 1) + '(0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)')
       }
 
       if (!options.strict) {
-        possibilities.push('C' + optPending0(('' + cent).padStart('0', 2)))
+        possibilities.push('(|early |mid |late )C' + optPending0(('' + cent).padStart('0', 2)))
       }
     }
     else if (date.match(/^C\d+$/)) {
@@ -177,17 +254,17 @@ function parts (date, options={}) {
 
       for (let i = 0; i < 2; i++) {
         if (cent[i] > 0) {
-          possibilities.push('C' + optPending0(cent.substr(0, i) + '0') + '[0-9]'.repeat(1 - i))
+          possibilities.push('(|early |mid |late )C' + optPending0(cent.substr(0, i) + '0') + '[0-9]'.repeat(1 - i))
         }
         if (cent[i] > 1) {
-          possibilities.push('C' + optPending0(cent.substr(0, i)) + regexpRange(1, cent[i] - 1) + '[0-9]'.repeat(1 - i))
+          possibilities.push('(|early |mid |late )C' + optPending0(cent.substr(0, i)) + regexpRange(1, cent[i] - 1) + '[0-9]'.repeat(1 - i))
         }
 
         if (year[i] > 0) {
-          possibilities.push(optPending0(year.substr(0, i) + '0') + '[0-9]'.repeat(2 - i) + '(0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)')
+          possibilities.push('(|early |mid |late )' + optPending0(year.substr(0, i) + '0') + '[0-9]'.repeat(2 - i) + '(0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)')
         }
         if (year[i] > 1) {
-          possibilities.push(optPending0(year.substr(0, i)) + regexpRange(1, year.substr(i, 1) - 1) + '[0-9]'.repeat(2 - i) + '(0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)')
+          possibilities.push('(|early |mid |late )' + optPending0(year.substr(0, i)) + regexpRange(1, year.substr(i, 1) - 1) + '[0-9]'.repeat(2 - i) + '(0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)')
         }
       }
     }
