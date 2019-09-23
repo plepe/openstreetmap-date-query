@@ -1,3 +1,5 @@
+let earlyMidLate = [ 'early', 'mid', 'late' ]
+
 function regexpRange (from, to) {
   let result = ''
 
@@ -41,7 +43,13 @@ function parts (date, options={}) {
       possibilities.push(optPending0(date))
 
       if (!options.strict) {
-        possibilities.push(optPending0(date.substr(0, 7)))
+        let p
+        // p - part of the month
+        p = earlyMidLate[Math.floor(date.substr(8, 2) / 31 * 3)]
+        possibilities.push('(|' + p + ' )' + optPending0(date.substr(0, 7)))
+        // p - part of the year
+        p = earlyMidLate[Math.floor((date.substr(5, 2) - 1) / 12 * 3)]
+        possibilities.push('(|' + p + ' )' + optPending0(date.substr(0, 4)))
         possibilities.push(optPending0(date.substr(0, 4)))
         possibilities.push(optPending0(date.substr(0, 3) + '0s'))
 
@@ -50,10 +58,11 @@ function parts (date, options={}) {
       }
     }
     if (date.match(/^\d{4}-\d{2}$/)) {
-      possibilities.push(optPending0(date + '(-[0-9]{2})?'))
+      possibilities.push('(|early |mid |late )' + optPending0(date + '(-[0-9]{2})?'))
 
       if (!options.strict) {
-        possibilities.push(optPending0(date.substr(0, 4)))
+        let p = earlyMidLate[Math.floor((date.substr(5, 2) - 1) / 12 * 3)]
+        possibilities.push('(|' + p + ' )' + optPending0(date.substr(0, 4)))
         possibilities.push(optPending0(date.substr(0, 3)) + '0s')
 
         let cent = parseInt(date.substr(0, 2)) + 1
@@ -61,9 +70,7 @@ function parts (date, options={}) {
       }
     }
     if (date.match(/^\d{4}$/)) {
-      if (date[3] !== '0') {
-        possibilities.push(optPending0(date + '(-[0-9]{2}(-[0-9]{2})?)?'))
-      }
+      possibilities.push('(|early |mid |late )' + optPending0(date + '(-[0-9]{2}(-[0-9]{2})?)?'))
 
       if (!options.strict) {
         possibilities.push(optPending0(date.substr(0, 3)) + '0s')
@@ -73,7 +80,7 @@ function parts (date, options={}) {
       }
     }
     else if (date.match(/^\d{4}s$/)) {
-      possibilities.push(optPending0(date.substr(0, 3)) + '(0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)')
+      possibilities.push('(|early |mid |late )' + optPending0(date.substr(0, 3)) + '(0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)')
 
       if (!options.strict) {
         let cent = parseInt(date.substr(0, 2)) + 1
@@ -84,7 +91,7 @@ function parts (date, options={}) {
       let cent = date.substr(1).padStart('0', 2)
       let year = ('' + ((cent - 1) * 100)).padStart(4, '0')
       possibilities.push('C' + optPending0(('' + cent).padStart('0', 2)))
-      possibilities.push(optPending0(year.substr(0, 2)) + '[0-9](0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)')
+      possibilities.push('(|early |mid |late )' + optPending0(year.substr(0, 2)) + '[0-9](0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)')
     }
   }
   else if (options.op === '<=') {
