@@ -37,10 +37,10 @@ The following parts of the start_date specification are supported:
 * early, mid, late prefix (e.g. `early C21`, `late 2019`)
 * ranges (e.g. `C17..1801-01-01`)
 * BC or BCE suffix (e.g. `350 BC`)
+* circa (e.g. `~2000`) - will be handled like exact value
 
 The following parts of the start_date specification are not supported (yet):
 * before, after
-* ~
 * Julian calendar, Julian day system, other calendars
 * AD suffix
 

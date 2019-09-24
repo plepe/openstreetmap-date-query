@@ -404,7 +404,7 @@ function osmDateQuery (date, options = {}) {
   if (!options.op || options.op === '=') {
     if (options.strict) {
       const result = parts(date, options)
-      return '^((' + result.join('|') + ')|((' + result.join('|') + ')\\.\\.(' + result.join('|') + ')))$'
+      return '^(~?(' + result.join('|') + ')|(~?(' + result.join('|') + ')\\.\\.~?(' + result.join('|') + ')))$'
     } else {
       const result = parts(date, options)
       const opt = JSON.parse(JSON.stringify(options))
@@ -413,23 +413,23 @@ function osmDateQuery (date, options = {}) {
       opt.op = '=>'
       const resultB = parts(date, options)
 
-      return '^((' + result.join('|') + ')|((' + resultA.join('|') + ')(|\\.\\..*))|((|.*\\.\\.)(' + resultB.join('|') + ')))$'
+      return '^(~?(' + result.join('|') + ')|(~?(' + resultA.join('|') + ')(|\\.\\..*))|((|.*\\.\\.)~?(' + resultB.join('|') + ')))$'
     }
   } else if (options.op === '<' || options.op === '<=') {
     const result = parts(date, options)
 
     if (options.strict) {
-      return '^(|.*\\.\\.)(' + result.join('|') + ')$'
+      return '^(|.*\\.\\.)~?(' + result.join('|') + ')$'
     } else {
-      return '^(' + result.join('|') + ')(|\\.\\..*)$'
+      return '^~?(' + result.join('|') + ')(|\\.\\..*)$'
     }
   } else if (options.op === '>' || options.op === '>=') {
     const result = parts(date, options)
 
     if (options.strict) {
-      return '^(' + result.join('|') + ')(|\\.\\..*)$'
+      return '^~?(' + result.join('|') + ')(|\\.\\..*)$'
     } else {
-      return '^(|.*\\.\\.)(' + result.join('|') + ')$'
+      return '^(|.*\\.\\.)~?(' + result.join('|') + ')$'
     }
   }
 }
