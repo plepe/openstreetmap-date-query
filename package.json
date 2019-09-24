@@ -12,6 +12,6 @@
   },
   "scripts": {
     "test": "mocha --bail test/test.js",
-    "lint": "standard src/*js test/*js"
+    "lint": "standard --fix src/*js test/*js"
   }
 }
