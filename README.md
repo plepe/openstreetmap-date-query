@@ -36,13 +36,13 @@ The following parts of the start_date specification are supported:
 * century (e.g. `C21`)
 * early, mid, late prefix (e.g. `early C21`, `late 2019`)
 * ranges (e.g. `C17..1801-01-01`)
-* BC suffix (e.g. `350 BC`)
+* BC or BCE suffix (e.g. `350 BC`)
 
 The following parts of the start_date specification are not supported (yet):
 * before, after
 * ~
 * Julian calendar, Julian day system, other calendars
-* AD, BCE suffixes
+* AD suffix
 
 The following date formats are supported as input to osmDateQuery():
 * year only (e.g. `2019`)
