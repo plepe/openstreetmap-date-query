@@ -64,6 +64,20 @@ The following date formats are not (yet?) supported as input to osmDateQuery():
 npm install --save openstreetmap-date-query
 ```
 
+### Development
+Clone the repository and install development dependencies:
+```sh
+https://github.com/plepe/openstreetmap-date-query.git
+cd openstreetmap-date-query
+npm install
+npm run test
+
+node
+> const osmDateQuery = require('./src/query')
+> osmDateQuery('2019')
+// regexp garbage
+```
+
 ## Related modules
 * [openstreetmap-date-parser](https://github.com/plepe/openstreetmap-date-parser): parse a date string and return a minimum and maximum date.
 * [openstreetmap-date-format](https://github.com/plepe/openstreetmap-date-format): format a date string into a human readable string (several languages available)
