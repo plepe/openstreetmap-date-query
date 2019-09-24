@@ -235,7 +235,7 @@ function parts (date, options = {}) {
       if (date[2] > 0) {
         possibilities.push('(|early |mid |late )' + date.substr(0, 2) + regexpRange(0, date[2] - 1) + '(0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)')
       }
-      if (date[0] === '0') {
+      if (date[0] === '0' && date[2] > 0) {
         possibilities.push('(|early |mid |late )' + date.substr(1, 1) + regexpRange(0, date[2] - 1) + '(0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)')
       }
 
