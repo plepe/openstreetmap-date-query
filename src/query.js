@@ -7,8 +7,6 @@ function arrayUnique (arr) {
 }
 
 function regexpRange (from, to) {
-  let result = ''
-
   if (from > to) {
     throw new Error('Error in range: ' + from + ' shouldn\'t be higher than ' + to)
   }
