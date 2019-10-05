@@ -19,8 +19,11 @@ describe('range', function () {
     assert.deepStrictEqual(range(5, 5), [5])
   })
 
+  it('7 - 6', function () {
+    assert.deepStrictEqual(range(7, 6), [])
+  })
+
   it('7 - 5', function () {
-    assert.deepStrictEqual(range(7, 5), [])
-    //assert.throws(() => range(7, 5), Error)
+    assert.throws(() => range(7, 5), Error)
   })
 })

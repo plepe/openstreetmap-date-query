@@ -12,7 +12,7 @@ describe('regexpRange', function () {
   })
 
   it('6 - 7', function () {
-    assert.deepStrictEqual(regexpRange(6, 7), '[6-7]')
+    assert.deepStrictEqual(regexpRange(6, 7), '[67]')
   })
 
   it('5 - 5', function () {
