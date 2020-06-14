@@ -5,7 +5,7 @@
   "main": "src/query.js",
   "repository": "https://github.com/plepe/openstreetmap-date-query",
   "author": "Stephan Bösch-Plepelits <skunk@xover.mud.at>",
-  "license": "GPL-3.0",
+  "license": "MIT",
   "devDependencies": {
     "mocha": "^6.2.2",
     "standard": "^14.3.1"
