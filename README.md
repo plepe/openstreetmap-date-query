@@ -3,12 +3,15 @@ Builds a regexp from a date query, e.g. for usage with Overpass API.
 
 This can be used to search for date in the format of the [start_date](https://wiki.openstreetmap.org/wiki/Key%3Astart_date) tag.
 
-Examples:
+### Examples
 ```js
 const osmDateQuery = require('openstreetmap-date-query')
 
 osmDateQuery('2019')
 // ^(((|early |mid |late )2019(-[0-9]{2}(-[0-9]{2})?)?|(|late )2010s|(|early )C21)|(((|early |mid |late )2019(-[0-9]{2}(-[0-9]{2})?)?|(|late )2010s|(|early )C21)(|\\.\\..*))|((|.*\\.\\.)((|early |mid |late )2019(-[0-9]{2}(-[0-9]{2})?)?|(|late )2010s|(|early )C21)))$
+
+osmDateQuery('2019', { strict: true })
+// '^(~?((|early |mid |late )2019(-[0-9]{2}(-[0-9]{2})?)?)|(~?((|early |mid |late )2019(-[0-9]{2}(-[0-9]{2})?)?)\\.\\.~?((|early |mid |late )2019(-[0-9]{2}(-[0-9]{2})?)?)))$'
 
 osmDateQuery('2019', { op: '<', strict: true })
 // ^(|.*\\.\\.)(.* BC|(|early |mid |late )C0?[0-9]|(|early |mid |late )C[1][0-9]|(|early |mid |late )0?[0-9][0-9](0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)|(|early |mid |late )[1][0-9][0-9](0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)|(|early |mid |late )C20|(|early |mid |late )20[0](0s|[0-9](-[0-9]{2}(-[0-9]{2})?)?)|(early |mid )2010s|(|early |mid |late )201[012345678](-[0-9]{2}(-[0-9]{2})?)?)$
@@ -58,6 +61,20 @@ The following date formats are not (yet?) supported as input to osmDateQuery():
 * Julian calendar, Julian day system, other calendars
 * ranges (e.g. `C17..2019`)
 * BC, BCE, AD suffixes (means: only dates AD can be used as input)
+
+### Strict mode
+Strict mode will only match dates, which are definitely included in the query. Example: take a building which was built in "C17" (17th century). You query for buildings built in "1623". The building might have been built in that particular year, so it will be matched by when strict mode is `false`. When strict mode is `true`, only dates in the year of 1623 will match (e.g. 1623-02).
+
+Examples:
+
+| Date value | Query | Operator |Matches strict mode|Matches non-strict mode|
+|------------|-------|:--------:|:-----------------:|:---------------------:|
+| 1623       | C17   | =        | true              | true                  |
+| C17        | 1623  | =        | false             | true                  |
+| 1623       | C17   | <=       | true              | true                  |
+| C17        | 1623  | <=       | false             | true                  |
+| 1623       | C17   | <        | false             | false                 |
+| C17        | 1623  | <        | false             | true                  |
 
 ## Installation
 ```sh
