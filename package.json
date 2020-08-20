@@ -7,8 +7,8 @@
   "author": "Stephan Bösch-Plepelits <skunk@xover.mud.at>",
   "license": "MIT",
   "devDependencies": {
-    "mocha": "^6.2.2",
-    "standard": "^14.3.1"
+    "mocha": "^6.2.3",
+    "standard": "^14.3.4"
   },
   "scripts": {
     "test": "mocha --bail test/test.js",
