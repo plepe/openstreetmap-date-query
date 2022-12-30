@@ -7,7 +7,7 @@
   "author": "Stephan Bösch-Plepelits <skunk@xover.mud.at>",
   "license": "MIT",
   "devDependencies": {
-    "mocha": "^6.2.3",
+    "mocha": "^10.2.0",
     "standard": "^14.3.4"
   },
   "scripts": {
